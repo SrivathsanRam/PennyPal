@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, Alert, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, Image, Alert, StyleSheet, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SignUp() {
   const [name, setName] = useState("");
@@ -11,7 +12,7 @@ export default function SignUp() {
   const handleSignUp = async () => {
     try {
       console.log(JSON.stringify({ name, mobile_number: mobileNumber, password }))
-      const response = await fetch("http://192.168.0.106:8000/api/auth/signup/", {
+      const response = await fetch("http://10.37.7.73:8000/api/auth/signup/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, mobile_number: mobileNumber, password }),
@@ -20,7 +21,10 @@ export default function SignUp() {
       const data = await response.json();
       if (response.ok) {
         Alert.alert("Success", "Account created successfully");
-        router.replace("/signin");
+        await AsyncStorage.setItem("authToken", data.token);
+        await AsyncStorage.setItem("userName", data.user.name);
+        await AsyncStorage.setItem("userPhone", data.user.mobile_number);
+        router.replace("/onboarding1");
       } else {
         Alert.alert("Error", data.error);
       }
@@ -31,6 +35,8 @@ export default function SignUp() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.welcome}>Welcome to PennyPal</Text>
+        <Image source={require('../assets/images/pennypal.png')} style={{ width: 200, height: 200 }} />
           <Text style={styles.title}>Sign Up</Text>
           <TextInput
             style={styles.input}
@@ -38,6 +44,12 @@ export default function SignUp() {
             keyboardType="default"
             value={name}
             onChangeText={setName}
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Occupation"
+            keyboardType="default"
             autoCapitalize="none"
           />
           <TextInput
@@ -60,7 +72,7 @@ export default function SignUp() {
             <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>
     
-          <TouchableOpacity onPress={() => router.navigate("/signup")}>
+          <TouchableOpacity onPress={() => router.navigate("/signin")}>
             <Text style={styles.linkText}>Have an account? Sign In</Text>
           </TouchableOpacity>
         </View>
@@ -78,6 +90,11 @@ const styles = StyleSheet.create({
   linkText: {
     color: "#007bff",
     marginTop: 15,
+  },
+  welcome: {
+    fontSize: 36,
+    fontWeight: "bold",
+    marginBottom: 24,
   },
   title: {
     fontSize: 32,

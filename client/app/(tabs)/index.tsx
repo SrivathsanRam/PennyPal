@@ -8,11 +8,13 @@ import {
   Animated,
   Easing,
   Modal,
+  SafeAreaView,
 } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import ExchangeRate from "@/components/ExchangeRate";
 
 export default function Index() {
   const [isRecording, setIsRecording] = useState(false);
@@ -20,6 +22,10 @@ export default function Index() {
   const [transcribedText, setTranscribedText] = useState("");
   const [transactionDetails, setTransactionDetails] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const openModal = () => setModalVisible(true);
+  const closeModal = () => setModalVisible(false);
+
   const scale = new Animated.Value(1);
 
   // Pulse animation
@@ -88,7 +94,7 @@ export default function Index() {
         encoding: FileSystem.EncodingType.Base64,
       });
 
-      const response = await fetch("http://192.168.0.106:8000/api/transcribe/", {
+      const response = await fetch("http://10.37.7.73:8000/api/transcribe/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ audio: audioData }),
@@ -103,7 +109,7 @@ export default function Index() {
 
   const submitTranscription = async () => {
     try {
-      const response = await fetch("http://192.168.0.106:8000/api/classify/", {
+      const response = await fetch("http://10.37.7.73:8000/api/classify/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: transcribedText }),
@@ -118,9 +124,9 @@ export default function Index() {
 
   const handleConfirmTransaction = async () => {
     try {
-      transactionDetails['mobile_number'] = "91159829";
+      transactionDetails['mobile_number'] = await AsyncStorage.getItem("userPhone");
       console.log(JSON.stringify(transactionDetails));
-      const response = await fetch("http://192.168.0.106:8000/api/add_transaction/", {
+      const response = await fetch("http://10.37.7.73:8000/api/add_transaction/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(transactionDetails),
@@ -139,6 +145,9 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.infoIcon} onPress={openModal}>
+        <FontAwesome5 name="info-circle" size={24} color="#000" />
+      </TouchableOpacity>
       <TouchableOpacity
         onPress={isRecording ? stopRecording : startRecording}
         style={styles.micContainer}
@@ -196,6 +205,19 @@ export default function Index() {
           </View>
         </View>
       </Modal>
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent={false}
+        onRequestClose={closeModal}
+      >
+        <SafeAreaView style={styles.modalContainer}>
+          <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+            <FontAwesome5 name="times-circle" size={30} color="#000" />
+          </TouchableOpacity>
+          <ExchangeRate />
+        </SafeAreaView>
+      </Modal>
     </View>
   );
 }
@@ -208,20 +230,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#f5f5f5",
   },
+  infoIcon: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+    zIndex: 10,
+  },
+  closeButton: {
+    alignSelf: "flex-end",
+    marginBottom: 10,
+  },
   micContainer: {
-    width: 80,
-    height: 80,
+    width: 100,
+    height: 100,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 20,
   },
   ripple: {
     position: "absolute",
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "red",
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: "#149b9c",
     opacity: 0.5,
+    marginBottom:50,
   },
   rippleActive: {
     opacity: 0.3,
@@ -233,12 +266,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     padding: 10,
+    marginTop: 50,
     backgroundColor: "#fff",
     marginBottom: 20,
     textAlignVertical: "top",
   },
   submitButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#10918e",
     padding: 15,
     borderRadius: 10,
   },

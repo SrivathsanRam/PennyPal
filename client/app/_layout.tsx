@@ -5,6 +5,7 @@ import { useColorScheme } from 'react-native';
 import { DarkTheme, DefaultTheme } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemeProvider } from '@react-navigation/native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -46,15 +47,18 @@ export default function RootLayout() {
   }
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="signin" options={{ headerShown: false }} />
         <Stack.Screen name="signup" options={{ headerShown: false }} />
         <Stack.Screen name="onboarding1" options={{ headerShown: false }} />
+        <Stack.Screen name="onboarding105" options={{ headerShown: false }} />
         <Stack.Screen name="onboarding2" options={{ headerShown: false }} />
         <Stack.Screen name="onboarding3" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

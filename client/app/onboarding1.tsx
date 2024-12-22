@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Button, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 
-const languages = ['English', 'Mandarin', 'Malay', 'Tamil'];
+const languages = ['English', 'Mandarin', 'Malay','Bengali', 'Tamil','Burmese'];
 
 export default function Onboarding1() {
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
@@ -11,11 +11,12 @@ export default function Onboarding1() {
 
   const handleNext = async () => {
     if (selectedLanguage) {
+      console.log("Hello");
       try {
         // Save the selected language to AsyncStorage
         await AsyncStorage.setItem('preferredLanguage', selectedLanguage);
         // Navigate to onboarding2.tsx
-        router.push('/onboarding2');
+        router.push('/onboarding105');
       } catch (error) {
         console.error('Error saving language to AsyncStorage:', error);
       }

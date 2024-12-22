@@ -48,23 +48,7 @@ python manage.py migrate
 
 python manage.py runserver
 ```
- 
 
-  
-
-Instructions on how to use the project.
-
-  
-
-```bash
-
-# Run the project
-
-npx  expo  start
-
-```
-
-  
   
 
 ## Future
